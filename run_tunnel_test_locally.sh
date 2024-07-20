@@ -2,14 +2,22 @@
 
 cd tests/
 
-go run service.go &
+gcc service.c -o service
 
-GO_PID=$!
+./service &
 
-sleep 1
+HTTP_PID=$!
 
-httpResponse=$(curl --location http://127.0.0.1:8080)
+PORT=6000
 
-echo $httpResponse
+nc -z 127.0.0.1 $PORT
 
-kill $GO_PID
+if [ $? -eq 0 ]; then
+    echo "Port $PORT is open"
+    httpResponse=$(curl --location http://127.0.0.1:$PORT)
+    echo $httpResponse
+else
+    echo "Port $PORT is closed"
+fi
+
+kill $HTTP_PID
